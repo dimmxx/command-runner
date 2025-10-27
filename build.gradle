@@ -31,24 +31,21 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.6")
 }
 
-
+//https://www.youtube.com/watch?v=jIZvb8hnnoY
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'com.dm'
-            artifactId = 'command-runner'
-            version = '1.0.0'
             from components.java
         }
     }
     repositories {
         maven {
-            name 'YourRepository'
-            url 'https://your-repository-url.com/releases'
+            name 'GitHubPackages'
+            url 'https://maven.pkg.github.com/dimmxx/command-runner'
             credentials {
-                username 'your-username'
-                password 'your-password' // Or use environment variables for security
+                username 'dimmxx'
+                password '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' // Or use environment variables for security
             }
         }
     }
