@@ -40,11 +40,7 @@ dependencies {
 //https://www.youtube.com/watch?v=jIZvb8hnnoY
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
+
     repositories {
         maven {
             name 'GitHubPackages'
