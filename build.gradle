@@ -13,6 +13,11 @@ java {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     mavenCentral()
 }
@@ -50,4 +55,9 @@ publishing {
             }
         }
     }
+}
+
+wrapper {
+    gradleVersion = "7.3.3"
+    distributionType = Wrapper.DistributionType.ALL
 }
