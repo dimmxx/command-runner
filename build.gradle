@@ -1,0 +1,72 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'com.dm'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.logging.log4j:log4j-api:2.25.2'
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.25.2'
+    runtimeOnly 'org.apache.logging.log4j:log4j-layout-template-json:2.25.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
+
+    implementation("org.apache.commons:commons-lang3:3.18.0")
+
+    testImplementation platform('org.junit:junit-bom:5.14.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.20.0'
+    testImplementation("org.assertj:assertj-core:3.27.6")
+}
+
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'com.dm'
+            artifactId = 'command-runner'
+            version = '1.0.0'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name 'YourRepository'
+            url 'https://your-repository-url.com/releases'
+            credentials {
+                username 'your-username'
+                password 'your-password' // Or use environment variables for security
+            }
+        }
+    }
+
+
+}
+
+
+tasks.register('uberJar', Jar) {
+    archiveClassifier = 'uber'
+    manifest.attributes('Main-Class': 'com.dm.Application')
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+
+    test {
+        useJUnitPlatform()
+    }}
