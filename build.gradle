@@ -45,7 +45,7 @@ publishing {
             url 'https://maven.pkg.github.com/dimmxx/command-runner'
             credentials {
                 username 'dimmxx'
-                password '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' // Or use environment variables for security
+                password = System.getenv("GITHUB_REPO_TOKEN")
             }
         }
     }
