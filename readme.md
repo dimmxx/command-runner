@@ -1,0 +1,1 @@
+mvn -e -X deploy:deploy-file -DgroupId=com.dm -DartifactId=command-runner -Dversion=1.0.0 -Dpackaging=jar -Dfile=target/command-runner-1.0.1.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/${GITHUB_ACTOR}/command-runner

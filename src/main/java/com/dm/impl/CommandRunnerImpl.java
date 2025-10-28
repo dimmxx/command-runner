@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -37,7 +38,7 @@ public class CommandRunnerImpl implements CommandRunner {
             Process process = processBuilder.start();
             try (InputStream stdStream = process.getInputStream()) {
                 List<String> stdOutput = new BufferedReader(new InputStreamReader(stdStream, StandardCharsets.UTF_8))
-                    .lines().toList();
+                    .lines().collect(Collectors.toList());
                 int status = process.waitFor();
 
                 String logMessage = format(LOG_TEMPLATE, status, stdOutput.size(), (currentTimeMillis() - start),
