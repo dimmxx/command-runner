@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CommandRunnerImplTest {
 
-    private final String[] COMMAND = List.of("some", "command").toArray(String[]::new);
+    private final String[] COMMAND = {"some", "command"};
     private final String ONE_LINE_OUTPUT = "one line command execution";
     private final String MULTI_LINE_OUTPUT = "multiple\nline\ncommand\nexecution\n";
     private final String IO_EXCEPTION_MESSAGE = "throwing IO Exception";
@@ -42,7 +43,7 @@ class CommandRunnerImplTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        when(processBuilderFactory.construct(any(File.class), any(String[].class), any(Boolean.class), any(Boolean.class))).thenReturn(processBuilder);
+        when(processBuilderFactory.construct(any(String[].class), any(File.class))).thenReturn(processBuilder);
         when(processBuilder.start()).thenReturn(process);
     }
 
@@ -51,7 +52,7 @@ class CommandRunnerImplTest {
         when(process.getInputStream()).thenReturn(new ByteArrayInputStream(ONE_LINE_OUTPUT.getBytes(StandardCharsets.UTF_8)));
         when(process.waitFor()).thenReturn(0);
 
-        Pair<Integer, List<String>> actual = testInstance.run(file, COMMAND, true);
+        Pair<Integer, List<String>> actual = testInstance.run(COMMAND, file);
 
         assertEquals(0, actual.getKey());
         assertEquals(1, actual.getValue().size());
@@ -64,20 +65,20 @@ class CommandRunnerImplTest {
         when(process.getInputStream()).thenReturn(new ByteArrayInputStream(MULTI_LINE_OUTPUT.getBytes(StandardCharsets.UTF_8)));
         when(process.waitFor()).thenReturn(0);
 
-        Pair<Integer, List<String>> actual = testInstance.run(file, COMMAND, true);
+        Pair<Integer, List<String>> actual = testInstance.run(COMMAND, file);
 
         assertEquals(0, actual.getKey());
         assertEquals(4, actual.getValue().size());
-        assertEquals(List.of("multiple", "line", "command", "execution"), actual.getValue());
+        assertEquals(asList("multiple", "line", "command", "execution"), actual.getValue());
         assertFalse(actual.getMetaData().isEmpty());
     }
 
     @Test
-    void run_whenThrowIOException() throws InterruptedException {
+    void run_whenThrowIOException() {
         when(process.getInputStream()).thenAnswer(i -> {
             throw new IOException(IO_EXCEPTION_MESSAGE);
         });
-        Pair<Integer, List<String>> actual = testInstance.run(file, COMMAND, true);
+        Pair<Integer, List<String>> actual = testInstance.run(COMMAND, file);
         assertNotEquals(0, actual.getKey());
         assertEquals(0, actual.getValue().size());
         assertFalse(actual.getMetaData().isEmpty());
@@ -85,15 +86,14 @@ class CommandRunnerImplTest {
     }
 
     @Test
-    void run_whenThrowRuntimeException() throws InterruptedException {
+    void run_whenThrowRuntimeException() {
         when(process.getInputStream()).thenAnswer(i -> {
             throw new RuntimeException(RUNTIME_EXCEPTION_MESSAGE);
         });
-        Pair<Integer, List<String>> actual = testInstance.run(file, COMMAND, true);
+        Pair<Integer, List<String>> actual = testInstance.run(COMMAND, file);
         assertNotEquals(0, actual.getKey());
         assertEquals(0, actual.getValue().size());
         assertFalse(actual.getMetaData().isEmpty());
         assertTrue(actual.getMetaData().contains(RUNTIME_EXCEPTION_MESSAGE));
     }
-
 }

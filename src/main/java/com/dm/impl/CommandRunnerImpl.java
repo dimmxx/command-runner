@@ -30,35 +30,35 @@ public class CommandRunnerImpl implements CommandRunner {
     }
 
     @Override
-    public Pair<Integer, List<String>> run(File directory, String[] commandArray, boolean workDir) {
+    public Pair<Integer, List<String>> run(String[] commandArray, File workDir) {
         long start = currentTimeMillis();
         String errorLogMessage;
-        ProcessBuilder processBuilder = processBuilderFactory.construct(directory, commandArray, workDir, true);
+        ProcessBuilder processBuilder = processBuilderFactory.construct(commandArray, workDir);
         try {
             Process process = processBuilder.start();
             try (InputStream stdStream = process.getInputStream()) {
-                List<String> stdOutput = new BufferedReader(new InputStreamReader(stdStream, StandardCharsets.UTF_8))
-                    .lines().collect(Collectors.toList());
+                List<String> stdOutput = new BufferedReader(new InputStreamReader(stdStream, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
                 int status = process.waitFor();
 
                 String logMessage = format(LOG_TEMPLATE, status, stdOutput.size(), (currentTimeMillis() - start),
-                    directory.getAbsoluteFile(), Arrays.toString(commandArray));
+                    workDir != null ? workDir.getAbsoluteFile() : null, Arrays.toString(commandArray));
 
                 LOGGER.info(logMessage);
                 return Pair.of(status, stdOutput, logMessage);
             }
         } catch (InterruptedException e) {
-            errorLogMessage = this.logError(e, directory, commandArray);
+            errorLogMessage = this.logError(e, workDir, commandArray);
             LOGGER.error(errorLogMessage);
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            errorLogMessage = this.logError(e, directory, commandArray);
+            errorLogMessage = this.logError(e, workDir, commandArray);
             LOGGER.error(errorLogMessage);
         }
         return Pair.of(1, emptyList(), errorLogMessage);
     }
 
-    private String logError(Exception exception, File directory, String[] commandArray) {
-        return format(ERROR_LOG_TEMPLATE, exception.getMessage(), directory.getAbsoluteFile(), Arrays.toString(commandArray));
+    private String logError(Exception exception, File workDir, String[] commandArray) {
+        return format(ERROR_LOG_TEMPLATE, exception.getMessage(),
+            workDir != null ? workDir.getAbsoluteFile() : null, Arrays.toString(commandArray));
     }
 }

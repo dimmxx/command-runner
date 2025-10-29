@@ -4,12 +4,17 @@ import java.io.File;
 
 public class ProcessBuilderFactory {
 
-    public ProcessBuilder construct(File directory, String[] commandArray,
-                                    boolean workDir, boolean redirectErrorStream) {
+    private final boolean redirectErrorStream;
+
+    public ProcessBuilderFactory(boolean redirectErrorStream) {
+        this.redirectErrorStream = redirectErrorStream;
+    }
+
+    public ProcessBuilder construct(String[] commandArray, File workDir) {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(commandArray);
-        if (workDir && !directory.isFile()) {
-            processBuilder.directory(directory);
+        if (workDir != null && !workDir.isFile()) {
+            processBuilder.directory(workDir);
         }
         processBuilder.redirectErrorStream(redirectErrorStream);
         return processBuilder;
